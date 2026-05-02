@@ -2,21 +2,24 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Review extends Model
 {
-    use HasFactory;
+    protected $fillable = [
+        'recipe_id',
+        'user_id',
+        'rating',
+        'comment',
+    ];
 
-    protected $fillable = ['rating', 'comment', 'recipe_id', 'user_id'];
-
-    public function recipe()
+    public function recipe(): BelongsTo
     {
         return $this->belongsTo(Recipe::class);
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

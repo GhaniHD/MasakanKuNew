@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -11,9 +12,6 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
     public function edit(Request $request): View
     {
         return view('profile.edit', [
@@ -21,9 +19,6 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * Update the user's profile information.
-     */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $request->user()->fill($request->validated());
@@ -37,29 +32,39 @@ class ProfileController extends Controller
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
-    /**
-     * Update the user's profile picture.
-     */
-    public function updatePicture(Request $request)
+    public function updatePicture(Request $request): RedirectResponse
     {
         $request->validate([
             'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
+        /** @var \App\Models\User $user */
         $user = Auth::user();
+        $disk = config('filesystems.default');
+
         if ($request->hasFile('profile_picture')) {
-            $image = $request->file('profile_picture');
-            $path = $image->store('profile_pictures', 'public');
-            $user->profile_picture_url = Storage::url($path);
+            // Hapus foto lama jika local storage
+            if ($user->profile_picture_url && $disk !== 'cloudinary') {
+                $oldPath = ltrim(str_replace(url('/storage'), '', $user->profile_picture_url), '/');
+                Storage::disk('public')->delete($oldPath);
+            }
+
+            if ($disk === 'cloudinary') {
+                $path = $request->file('profile_picture')
+                    ->store('masakanku/profile_pictures', 'cloudinary');
+                $user->profile_picture_url = $path; // Cloudinary sudah return full URL
+            } else {
+                $path = $request->file('profile_picture')
+                    ->store('profile_pictures', 'public');
+                $user->profile_picture_url = Storage::url($path);
+            }
+
             $user->save();
         }
 
         return Redirect::route('profile.edit')->with('status', 'profile-picture-updated');
     }
 
-    /**
-     * Delete the user's account.
-     */
     public function destroy(Request $request): RedirectResponse
     {
         $request->validateWithBag('userDeletion', [
@@ -78,20 +83,14 @@ class ProfileController extends Controller
         return Redirect::to('/');
     }
 
-    public function favorites()
+    public function favorites(): View
     {
-        $favorites = [];
+        $favorites = Auth::check() ? Auth::user()->favorites : collect();
 
-        // Jika user terautentikasi, dapatkan data favorit
-        if (Auth::check()) {
-            $favorites = Auth::user()->favorites;
-        }
-
-        // Render view profil bersamaan dengan data favorit
         return view('profile.favorites', ['favorites' => $favorites]);
     }
-    // Tambahkan metode index di sini
-    public function index()
+
+    public function index(): View
     {
         return view('profile.index');
     }

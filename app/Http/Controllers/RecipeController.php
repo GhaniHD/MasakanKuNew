@@ -3,25 +3,24 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 use App\Models\Recipe;
 use App\Models\Instruction;
 use App\Models\Review;
 use App\Models\Comment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Redirect;
-use App\Models\Category;
 
 class RecipeController extends Controller
 {
-    public function create()
+    public function create(): View
     {
         return view('recipes.create');
     }
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        // Validate input
         $validatedData = $request->validate([
             'cover_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'name' => 'required|string|max:255',
@@ -30,41 +29,46 @@ class RecipeController extends Controller
             'ingredients.*' => 'required|string|max:255',
             'instructions' => 'required|array|min:1',
             'instructions.*' => 'required|string',
-            'instruction_images_*.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'category' => 'required|string|max:255',
-            'servings' => 'required|integer|min:1', // Validate servings
-            'cooking_time' => 'required|integer|min:0', // Validate cooking time
+            'servings' => 'required|integer|min:1',
+            'cooking_time' => 'required|integer|min:0',
         ]);
 
-        // Handle the cover image upload
+        $coverImagePath = null;
         if ($request->hasFile('cover_image')) {
-            $coverImagePath = $request->file('cover_image')->store('public/images');
+            $disk = config('filesystems.default');
+            $coverImagePath = $disk === 'cloudinary'
+                ? $request->file('cover_image')->store('masakanku/recipes', 'cloudinary')
+                : $request->file('cover_image')->store('images', 'public');
         }
 
-        // Store recipe
-        $recipe = new Recipe();
-        $recipe->image = $coverImagePath ?? null;
-        $recipe->name = $validatedData['name'];
-        $recipe->user_id = Auth::id();
-        $recipe->description = $validatedData['description'];
-        $recipe->ingredients = json_encode($validatedData['ingredients']);
-        $recipe->instructions = json_encode($validatedData['instructions']);
-        $recipe->category = $validatedData['category'];
-        $recipe->servings = $validatedData['servings']; // Store servings
-        $recipe->cooking_time = $validatedData['cooking_time']; // Store cooking time
-        $recipe->save();
+        /** @var Recipe $recipe */
+        $recipe = Recipe::create([
+            'image' => $coverImagePath,
+            'name' => $validatedData['name'],
+            'user_id' => Auth::id(),
+            'description' => $validatedData['description'],
+            'ingredients' => json_encode($validatedData['ingredients']),
+            'instructions' => json_encode($validatedData['instructions']),
+            'category' => $validatedData['category'],
+            'servings' => $validatedData['servings'],
+            'cooking_time' => $validatedData['cooking_time'],
+        ]);
 
-        // Handle instruction images upload and store in instructions table
-        foreach ($validatedData['instructions'] as $key => $instruction) {
-            if ($request->hasFile("instruction_images_" . ($key + 1))) {
-                foreach ($request->file("instruction_images_" . ($key + 1)) as $file) {
-                    $path = $file->store("public/instruction_images/{$recipe->id}");
+        foreach ($validatedData['instructions'] as $key => $instructionText) {
+            $fileKey = 'instruction_images_' . ($key + 1);
+            if ($request->hasFile($fileKey)) {
+                foreach ($request->file($fileKey) as $file) {
+                    $disk = config('filesystems.default');
+                    $path = $disk === 'cloudinary'
+                        ? $file->store("masakanku/instruction_images/{$recipe->id}", 'cloudinary')
+                        : $file->store("instruction_images/{$recipe->id}", 'public');
 
-                    $instructionModel = new Instruction();
-                    $instructionModel->nama = $instruction;
-                    $instructionModel->recipe_id = $recipe->id;
-                    $instructionModel->image = $path;
-                    $instructionModel->save();
+                    Instruction::create([
+                        'nama' => $instructionText,
+                        'recipe_id' => $recipe->id,
+                        'image' => $path,
+                    ]);
                 }
             }
         }
@@ -72,27 +76,32 @@ class RecipeController extends Controller
         return redirect()->route('recipes.index')->with('success', 'Resep berhasil ditambahkan');
     }
 
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
-        // Hapus resep
         $recipe = Recipe::where('id', $id)->where('user_id', Auth::id())->first();
 
         if ($recipe) {
-            if ($recipe->image) {
-                Storage::delete('public/' . $recipe->image);
+            $disk = config('filesystems.default');
+
+            if ($recipe->image && $disk !== 'cloudinary') {
+                Storage::disk('public')->delete($recipe->image);
+            }
+
+            foreach ($recipe->instructions as $instruction) {
+                if ($instruction->image && $disk !== 'cloudinary') {
+                    Storage::disk('public')->delete($instruction->image);
+                }
             }
 
             $recipe->delete();
-
             return redirect()->route('recipes.index')->with('success', 'Resep berhasil dihapus.');
         }
 
         return redirect()->route('recipes.index')->with('error', 'Resep tidak ditemukan.');
     }
 
-    public function search(Request $request)
+    public function search(Request $request): View
     {
-        // Cari resep
         $query = $request->input('query');
         $recipes = Recipe::where('user_id', Auth::id())
             ->where(function ($q) use ($query) {
@@ -104,23 +113,21 @@ class RecipeController extends Controller
         return view('recipes.search_results', ['recipes' => $recipes]);
     }
 
-    public function index()
+    public function index(): View
     {
-        // Tampilkan semua resep milik pengguna yang terautentikasi
         $recipes = Recipe::where('user_id', Auth::id())->with('reviews')->get();
         return view('recipes.index', ['recipes' => $recipes]);
     }
 
-    public function show($id)
+    public function show(int $id): View
     {
         $recipe = Recipe::findOrFail($id);
         $instructions = Instruction::where('recipe_id', $id)->get();
         return view('recipes.show', compact('recipe', 'instructions'));
     }
 
-    public function popular()
+    public function popular(): View
     {
-        // Tampilkan resep berdasarkan popularitasnya
         $popularRecipes = Recipe::withCount('reviews')
             ->orderBy('reviews_count', 'desc')
             ->take(20)
@@ -129,53 +136,74 @@ class RecipeController extends Controller
         return view('recipes.popular', ['recipes' => $popularRecipes]);
     }
 
-    public function storeReview(Request $request, $recipeId)
+    public function storeReview(Request $request, int $recipeId): RedirectResponse
     {
-        // Simpan review resep
-        $review = new Review;
-        $review->recipe_id = $recipeId;
-        $review->user_id = Auth::id();
-        $review->rating = $request->input('rating');
-        $review->comment = $request->input('comment');
-        $review->save();
+        Review::create([
+            'recipe_id' => $recipeId,
+            'user_id' => Auth::id(),
+            'rating' => $request->input('rating'),
+            'comment' => $request->input('comment'),
+        ]);
 
         return redirect()->route('recipes.show', $recipeId);
     }
 
-    public function storeComment(Request $request, $recipeId)
+    public function storeComment(Request $request, int $recipeId): RedirectResponse
     {
-        // Simpan komentar resep
-        $comment = new Comment;
-        $comment->recipe_id = $recipeId;
-        $comment->user_id = Auth::id();
-        $comment->comment = $request->input('comment');
-        $comment->save();
+        Comment::create([
+            'recipe_id' => $recipeId,
+            'user_id' => Auth::id(),
+            'comment' => $request->input('comment'),
+        ]);
 
         return redirect()->route('recipes.show', $recipeId);
     }
 
-    // Metode untuk halaman "all recipes"
-    public function allRecipes()
+    public function allRecipes(): View
     {
-        $recipes = Recipe::all(); // Ambil semua resep dari database
-        return view('user.allRecipe', compact('recipes')); // Kembalikan tampilan dengan data resep
+        $recipes = Recipe::all();
+        return view('user.allRecipe', compact('recipes'));
     }
-    public function category($category)
+
+    public function category(string $category): View
     {
         $recipes = Recipe::where('category', $category)->get();
         return view('recipes.category', ['recipes' => $recipes, 'category' => $category]);
     }
 
-    public function edit($id)
+    public function edit(int $id): View
     {
         $recipe = Recipe::findOrFail($id);
         return view('recipes.edit', compact('recipe'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
         $recipe = Recipe::findOrFail($id);
-        $recipe->update($request->all());
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'category' => 'required|string|max:255',
+            'servings' => 'required|integer|min:1',
+            'cooking_time' => 'required|integer|min:0',
+            'ingredients' => 'required|array|min:1',
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        if ($request->hasFile('cover_image')) {
+            $disk = config('filesystems.default');
+
+            if ($recipe->image && $disk !== 'cloudinary') {
+                Storage::disk('public')->delete($recipe->image);
+            }
+
+            $validated['image'] = $disk === 'cloudinary'
+                ? $request->file('cover_image')->store('masakanku/recipes', 'cloudinary')
+                : $request->file('cover_image')->store('images', 'public');
+        }
+
+        $recipe->update($validated);
 
         return redirect()->route('recipes.index')->with('success', 'Resep berhasil diperbarui!');
     }

@@ -1,147 +1,169 @@
-<nav class="navbar navbar-expand-lg bg-orange shadow border-bottom">
-    <a class="navbar-brand text-white" href="{{ url('/') }}">
-        <img src="{{ asset('images/logo.png') }}" alt="SunnyResep" style="height: 30px; margin-left: 10px;">
-    </a>
-    </a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ml-auto">
-            @if (Route::has('login'))
-                @auth               <form action="{{ route('search') }}" method="GET" class="d-flex justify-center align-center search-form">
-                        <input class="form-control search-input me-2" type="text" name="query" placeholder="Cari Resep Terbaik..."
-                            required>
-                        <button class="btn btn-outline-success search-button" type="submit">Search</button>
-                    </form>
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ url('/user/dashboard') }}"><i class="fa-solid fa-house move-up"
-                                style="margin-right: 3px;"></i>Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ url('/populer') }}"><i
-                                class="fa-brands fa-gratipay fa-lg move-up" style="margin-right: 3px;"></i>Populer</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ url('/recipes') }}"><i
-                                class="fa-regular fa-square-plus fa-lg move-up" style="margin-right: 3px;"></i>Tambahkan
-                            Resep</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a id="navbarDropdown" class="nav-link dropdown-toggle text-white" href="#" role="button"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                            <i class="fa-solid fa-user"></i> {{ Auth::user()->name }}
-                        </a>
+<nav class="navbar navbar-expand-lg shadow border-bottom">
+    <div class="container-fluid px-3">
 
-                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="{{ url('/profile') }}">
-                                Profile
-                            </a>
-                            <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault();
-                                                    document.getElementById('logout-form').submit();">
+        <!-- LOGO -->
+        <a class="navbar-brand m-0" href="{{ url('/') }}">
+            <img src="{{ asset('images/logo.png') }}" alt="SunnyResep">
+        </a>
+
+        <!-- TOGGLER -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+
+            <!-- SEARCH TENGAH -->
+            <form action="{{ route('search') }}" method="GET"
+                  class="search-form-desktop mx-auto d-none d-lg-flex">
+                <input class="form-control search-input me-2"
+                       type="text" name="query"
+                       placeholder="Cari Resep..." required>
+                <button class="btn search-button" type="submit">Search</button>
+            </form>
+
+            <!-- KANAN: MENU + PROFILE -->
+            <div class="d-flex align-items-center ms-auto right-section">
+
+                <!-- MENU -->
+                <ul class="navbar-nav d-flex flex-row align-items-center me-3 menu-right">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('/user/dashboard') }}">
+                            <i class="fa-solid fa-house"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('/populer') }}">
+                            <i class="fa-solid fa-heart"></i> Populer
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('/recipes') }}">
+                            <i class="fa-solid fa-plus"></i> Tambahkan Resep
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- PROFILE -->
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-user"></i> {{ Auth::user()->name }}
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ url('/profile') }}">Profile</a></li>
+                        <li>
+                            <a class="dropdown-item" href="{{ route('logout') }}"
+                               onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                 Logout
                             </a>
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                                @csrf
-                            </form>
-                        </div>
-                    </li>
-                @else
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ url('/populer') }}"><i
-                                class="fa-solid fa-heart-circle-check"></i>Populer</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ url('/recipes') }}"><i
-                                class="fa-solid fa-pen-to-square fa-lg move-up" style="margin-right: 2px;"></i>Tambahkan
-                            Resep</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a id="navbarDropdown" class="nav-link dropdown-toggle text-white" href="#" role="button"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                            Profile
-                        </a>
+                        </li>
+                    </ul>
+                </div>
 
-                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="{{ route('login') }}">Log in</a>
-                            @if (Route::has('register'))
-                                <a class="dropdown-item" href="{{ route('register') }}">Register</a>
-                            @endif
-                        </div>
-                    </li>
-                @endauth
-            @endif
-        </ul>
+            </div>
+
+            <!-- SEARCH MOBILE -->
+            <form action="{{ route('search') }}" method="GET" class="search-form-mobile">
+                <input class="form-control search-input"
+                       type="text" name="query"
+                       placeholder="Cari Resep..." required>
+                <button class="btn search-button" type="submit">Search</button>
+            </form>
+
+        </div>
     </div>
 </nav>
 
 <style>
-    .navbar {
-        background-color: #FFFFFF !important;
-        border-bottom: 2px solid #fff !important;
-        /* Border bawah dengan warna abu-abu */
-        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
-        /* Efek bayangan lebih jelas */
+/* NAVBAR */
+.navbar {
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    padding: 10px 15px;
+}
+
+.navbar-brand img {
+    height: 35px;
+}
+
+/* MENU KANAN */
+.menu-right {
+    gap: 15px;
+}
+
+/* NAV LINK */
+.nav-link {
+    color: #363636 !important;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.nav-link:hover {
+    color: #FBB917 !important;
+}
+
+/* SEARCH */
+.search-input {
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    min-width: 250px;
+}
+
+.search-button {
+    background-color: #FBB917;
+    color: white;
+    border: none;
+    border-radius: 8px;
+}
+
+.search-button:hover {
+    background-color: #e0a800;
+}
+
+/* DROPDOWN */
+.dropdown-menu {
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+
+/* MOBILE SEARCH */
+.search-form-mobile {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 991px) {
+
+    .search-form-desktop {
+        display: none !important;
     }
 
-    .navbar-brand {
-        color: #363636 !important;
+    .menu-right {
+        flex-direction: column !important;
+        align-items: center;
+        margin-top: 10px;
     }
 
-    .text-white {
-        color: #363636 !important;
+    .right-section {
+        flex-direction: column;
+        align-items: center;
     }
 
-    .navbar-brand img.logo-img {
-        max-height: 70px;
-        /* Atur tinggi maksimum gambar logo */
-        width: auto;
-        /* Menjaga aspek rasio */
-    }
-
-    .text-white:hover {
-        color: #d9dddc !important;
-    }
-
-    .navbar-toggler-icon {
-        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(54, 54, 54, 1)' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
-    }
-
-    body {
-        background-color: #FFFAF0;
-
-    }
-
-    /* Tambahkan CSS ini ke file CSS Anda */
-    .search-form {
-        position: absolute;
-        top: 50%;
-        left: 40%;
-        transform: translate(-50%, -50%);
+    .search-form-mobile {
+        display: flex;
+        width: 100%;
     }
 
     .search-input {
-        width: 300px;
-        /* Atur lebar kolom pencarian sesuai keinginan */
+        width: 100%;
     }
+}
 
-    .search-button {
-        background-color: #FBB917 !important;
-        /* Ubah warna background tombol menjadi putih */
-        color: white;
-        /* Ubah warna teks tombol menjadi hitam */
-        border-color: #ccc;
-        /* Ubah warna border tombol */
-    }
-
-    /* Tambahkan beberapa hover effects untuk tombol */
-    .search-button:hover {
-        background-color: #f8f9fa;
-        /* Warna background saat hover */
-        color: black;
-        /* Warna teks saat hover */
-        border-color: #aaa;
-        /* Warna border saat hover */
-    }
+body {
+    background-color: #FFFAF0;
+}
 </style>

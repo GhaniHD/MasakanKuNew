@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: masakanku
+    env: php
+    region: singapore   # paling dekat Indonesia
+    plan: free
+    buildCommand: |
+      composer install --no-dev --optimize-autoloader --no-interaction
+      npm ci
+      npm run build
+      php artisan config:cache
+      php artisan route:cache
+      php artisan view:cache
+    startCommand: "php artisan serve --host=0.0.0.0 --port=$PORT"
+    envVars:
+      - key: APP_NAME
+        value: MasakanKu
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        generateValue: true
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: SESSION_DRIVER
+        value: database
+      - key: FILESYSTEM_DISK
+        value: cloudinary
+      - key: DB_CONNECTION
+        value: mysql
+      # Tambahkan DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD
+      # dari database yang kamu buat di Render

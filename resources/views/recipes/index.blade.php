@@ -36,12 +36,14 @@
                 <div class="col-md-4">
                     <div class="card mb-4 recipe-card">
                         @if($recipe->image)
-                            <img src="{{ Storage::url($recipe->image) }}" class="card-img-top recipe-image"
-                                alt="{{ $recipe->name }}">
+                            {{-- Gunakan helper recipe_image() agar support Cloudinary & local --}}
+                            <img src="{{ recipe_image($recipe->image, asset('images/default-recipe.png')) }}"
+                                 class="card-img-top recipe-image"
+                                 alt="{{ $recipe->name }}">
                         @endif
                         <div class="card-body">
                             <h5 class="card-title">{{ $recipe->name }}</h5>
-                            <p class="card-text">{{ $recipe->description }}</p>
+                            <p class="card-text">{{ Str::limit($recipe->description, 80) }}</p>
                             <a href="{{ route('recipes.show', $recipe->id) }}" class="btn btn-primary">Lihat Resep</a>
                             <a href="{{ route('recipes.edit', $recipe->id) }}" class="btn btn-warning">Edit</a>
                             <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal"
@@ -54,7 +56,7 @@
     @endif
 </div>
 
-<!-- Modal -->
+<!-- Modal Hapus -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -77,39 +79,29 @@
 </div>
 
 <style>
-    .bg {
-        background-color: #FF8C00;
-    }
-
     .btn-primary {
         background-color: #FBB917 !important;
         border-color: #FBB917 !important;
     }
-
     .btn-primary:hover {
         background-color: #C8B560 !important;
         border-color: #C8B560 !important;
     }
-
-    .btn-primary:active,
-    .btn-primary:focus {
+    .btn-primary:active, .btn-primary:focus {
         background-color: #C8B560 !important;
         border-color: #C8B560 !important;
         box-shadow: none !important;
     }
-
     .recipe-card {
         height: 100%;
         display: flex;
         flex-direction: column;
     }
-
     .recipe-image {
         width: 100%;
         height: 200px;
         object-fit: cover;
     }
-
     .card-body {
         flex: 1;
         display: flex;
@@ -124,3 +116,4 @@
     }
 </script>
 @endsection
+
