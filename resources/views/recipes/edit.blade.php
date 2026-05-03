@@ -139,7 +139,7 @@
                 <div id="instructionList">
                     @php
                         // Ambil dari tabel instructions (relasi), bukan kolom steps/JSON
-                        $existingInstructions = $recipe->instructionItems ?? $recipe->instructions()->get();
+                        $existingInstructions = $recipe->instructions()->get();
                         $oldInstructions = old('instructions');
                     @endphp
 
