@@ -314,9 +314,9 @@ body { background: var(--cream); color: var(--text); font-family: 'Georgia', ser
                                 @if($instruction->image)
                                     <div class="step-images">
                                         <img class="step-thumb"
-                                             src="{{ str_starts_with($instruction->image,'http') ? $instruction->image : Storage::url($instruction->image) }}"
-                                             alt="Langkah {{ $loop->iteration }}"
-                                             onclick="openLb(this.src)">
+     src="{{ $instruction->image }}"
+     alt="Langkah {{ $loop->iteration }}"
+     onclick="openLb(this.src)">
                                     </div>
                                 @endif
                             </div>
