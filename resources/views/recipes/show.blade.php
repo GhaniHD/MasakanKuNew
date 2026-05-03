@@ -302,60 +302,30 @@ body { background: var(--cream); color: var(--text); font-family: 'Georgia', ser
 
     {{-- Cara Membuat --}}
     <div class="r-card">
-    <div class="r-card-body">
-        <p class="r-card-title">Cara Membuat</p>
-
-        {{-- DEBUG INFO --}}
-        <div style="background:#fff3cd;padding:10px;border-radius:8px;margin-bottom:10px;font-size:12px;">
-            <b>DEBUG:</b><br>
-            Total Instructions: {{ $instructions->count() }}<br>
-        </div>
-
-        @if($instructions->count() == 0)
-            <p style="color:#999;">❌ Tidak ada data instruksi</p>
-        @else
+        <div class="r-card-body">
+            <p class="r-card-title">Cara Membuat</p>
             <ol class="instruction-list">
                 @foreach($instructions as $instruction)
-
-                    {{-- DEBUG PER ITEM --}}
-                    <div style="background:#f1f1f1;padding:6px;margin-bottom:6px;font-size:11px;">
-                        ID: {{ $instruction->id }} |
-                        Recipe ID: {{ $instruction->recipe_id }} <br>
-                        Nama: {{ $instruction->nama ?? 'NULL' }} <br>
-                        Image: {{ $instruction->image ?? 'NULL' }}
-                    </div>
-
-                    @if(!empty($instruction->nama))
+                    @if($instruction->nama)
                         <li class="instruction-step">
                             <div class="step-number">{{ $loop->iteration }}</div>
                             <div class="step-content">
-
                                 <p class="step-text">{{ $instruction->nama }}</p>
-
                                 @if($instruction->image)
                                     <div class="step-images">
                                         <img class="step-thumb"
-                                             src="{{ str_starts_with($instruction->image,'http')
-                                                    ? $instruction->image
-                                                    : asset('storage/'.$instruction->image) }}"
+                                             src="{{ $instruction->image }}"
                                              alt="Langkah {{ $loop->iteration }}"
                                              onclick="openLb(this.src)">
                                     </div>
-                                @else
-                                    <p style="font-size:11px;color:#aaa;">(tidak ada gambar)</p>
                                 @endif
-
                             </div>
                         </li>
-                    @else
-                        <p style="color:red;font-size:12px;">⚠️ nama kosong</p>
                     @endif
-
                 @endforeach
             </ol>
-        @endif
+        </div>
     </div>
-</div>
 
     {{-- Penulis --}}
     <div class="r-card">

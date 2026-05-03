@@ -74,30 +74,49 @@ class RecipeController extends Controller
         ]);
 
         foreach ($validatedData['instructions'] as $key => $instructionText) {
+            $imagePath = null; // default null jika tidak ada gambar
+
             $fileKey = 'instruction_images_' . ($key + 1);
+
             if ($request->hasFile($fileKey)) {
-                foreach ($request->file($fileKey) as $file) {
+                // Ambil file pertama saja (atau looping jika multi-gambar per step)
+                $file = $request->file($fileKey)[0] ?? $request->file($fileKey);
+
+                // Jika file berupa array (multiple upload)
+                $files = is_array($request->file($fileKey))
+                    ? $request->file($fileKey)
+                    : [$request->file($fileKey)];
+
+                foreach ($files as $file) {
                     $disk = config('filesystems.default');
+
                     if ($disk === 'cloudinary') {
                         $path = $file->store("masakanku/instruction_images/{$recipe->id}", 'cloudinary');
-
                         /** @var \Illuminate\Filesystem\FilesystemAdapter $cloudDisk */
                         $cloudDisk = Storage::disk('cloudinary');
-
-                        $path = $cloudDisk->url($path);
-                    
+                        $imagePath = $cloudDisk->url($path);
                     } else {
                         $path = $file->store("instruction_images/{$recipe->id}", 'public');
-
-                        $path = Storage::url($path);
+                        $imagePath = Storage::url($path);
                     }
+
                     Instruction::create([
                         'nama' => $instructionText,
                         'recipe_id' => $recipe->id,
-                        'image' => $path,
+                        'image' => $imagePath,
                     ]);
                 }
+
+                // Sudah dibuat di dalam loop file, lanjut ke instruksi berikutnya
+                continue;
             }
+
+            // ✅ Instruksi tanpa gambar tetap disimpan
+            Instruction::create([
+                'nama' => $instructionText,
+                'recipe_id' => $recipe->id,
+                'image' => null,
+            ]);
         }
 
         return redirect()->route('recipes.index')->with('success', 'Resep berhasil ditambahkan');
