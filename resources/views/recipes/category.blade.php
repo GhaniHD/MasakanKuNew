@@ -1,651 +1,252 @@
 @extends('layouts.app')
 
 @section('content')
+
 <style>
-    body {
-        font-family: 'Nunito', sans-serif;
-        background-size: cover;
-        background-position: center 35px;
-        margin: 0;
-        padding: 0;
-    }
-
-    h1 {
-        font-size: 1.5rem;
-        /* Perkecil ukuran h1 */
-        margin-bottom: 20px;
-        font-weight: 600;
-    }
-
-    p {
-        font-size: 1.5rem;
-        margin-bottom: 1px;
-    }
-
-    @import url('https://fonts.googleapis.com/css?family=Roboto');
-
-    img {
-        max-width: 100%;
-        height: auto;
-    }
-
-    .card {
-        background-color: #fff;
-        border: 1px solid #eee;
-        border-radius: 10px;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        height: 100%;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .header {
-        height: 180px;
-        /* Sesuaikan tinggi gambar */
-        position: relative;
-        overflow: hidden;
-    }
-
-    .img-wrapper {
-        width: 100%;
-        height: 100%;
-        position: relative;
-    }
-
-    .img-wrapper img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .text {
-        padding: 15px;
-        flex-grow: 1;
-    }
-
-    .normal-text {
-        font-size: 1em;
-        color: #888;
-        margin-right: 10px;
-    }
-
-    .small-text {
-        font-size: 0.875em;
-        /* Ukuran teks lebih kecil */
-        vertical-align: middle;
-    }
-
-    .stars {
-        margin: 10px 0;
-    }
-
-    .stars a {
-        color: #ffd700;
-        text-decoration: none;
-    }
-
-    .stars a:hover {
-        color: #ff9b00;
-    }
-
-    .info {
-        margin-top: 10px;
-    }
-
-    a.btn {
-        display: block;
-        background: #FFBD59;
-        color: #fff;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        text-align: center;
-        padding: 10px;
-        font-size: 0.9em;
-        text-decoration: none;
-        transition: 250ms;
-
-    }
-
-    a.btn:hover {
-        background: #C8B560;
-    }
-
-    .card-container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-        /* Align items to the start of the container */
-    }
-
-    .col-md-6 {
-        flex: 0 0 33.3333%;
-        max-width: 33.3333%;
-        box-sizing: border-box;
-    }
-
-    .container {
-        padding-bottom: px;
-        /* Reduce top padding */
-    }
-
-
-    .Populer {
-        position: absolute;
-        width: 38%;
-        height: 33%;
-        /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#fbfaf6+9,d4cebf+74,d4cebf+74,d4cebf+100 */
-
-
-    }
-
-
-    .cont_central {
-        position: absolute;
-        width: 100%;
-        top: 50%;
-        margin-top: -200px;
-    }
-
-    .cont_modal {
-        position: relative;
-        width: 300px;
-        height: 400px;
-        -webkit-transition: all 0.5s;
-        -o-transition: all 0.5s;
-        transition: all 0.5s;
-        transition-delay: 0.7s;
-        -webkit-transition-delay: 0.7s;
-        -o-transition-delay: 0.7s;
-        transition-delay: 0.7s;
-    }
-
-    .cont_photo {
-        position: relative;
-        width: 200px;
-        height: 300px;
-        padding: 5px;
-        overflow: hidden;
-        background-color: #eee;
-        top: -20px;
-        float: left;
-        z-index: 2;
-        -webkit-transition: all 0.5s;
-        -o-transition: all 0.5s;
-        transition: all 0.5s;
-        transition: all 0.5s;
-        box-shadow: 1px 1px 20px -5px rgba(0, 0, 0, 0.5);
-    }
-
-    .cont_img_back {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        border-radius: 5px;
-    }
-
-    .cont_img_back>img {
-        width: 100%;
-        opacity: 0.7;
-        -webkit-transition: all 0.5s;
-        -o-transition: all 0.5s;
-        transition: all 0.5s;
-        transition: all 1s;
-    }
-
-    .cont_img_back:hover>img {
-        transform: scale(1.5);
-    }
-
-    .cont_text_ingredients {
-        position: absolute;
-        width: 0px;
-        top: 0px;
-        left: 290px;
-        margin-left: 10px;
-        height: 400px;
-        float: left;
-        border-radius: 5px;
-        z-index: 3;
-        box-shadow: 1px 1px 20px -5px rgba(0, 0, 0, 0.2);
-
-        /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#fbf9f9+28,e8eaed+100 */
-        background: rgb(251, 249, 249);
-        /* Old browsers */
-        background: -moz-linear-gradient(-45deg, rgba(251, 249, 249, 1) 28%, rgba(232, 234, 237, 1) 100%);
-        /* FF3.6-15 */
-        background: -webkit-linear-gradient(-45deg, rgba(251, 249, 249, 1) 28%, rgba(232, 234, 237, 1) 100%);
-        /* Chrome10-25,Safari5.1-6 */
-        background: linear-gradient(135deg, rgba(251, 249, 249, 1) 28%, rgba(232, 234, 237, 1) 100%);
-        /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-
-        -webkit-transition: all 0.5s;
-        -o-transition: all 0.5s;
-        transition: all 0.5s;
-        transition-delay: 0.7s;
-        -webkit-transition-delay: 0.7s;
-        -o-transition-delay: 0.7s;
-        transition-delay: 0.7s;
-    }
-
-    .cont_mins {
-        position: relative;
-        float: left;
-        width: 100%;
-    }
-
-    .sub_mins {
-        position: relative;
-        float: left;
-        width: 60px;
-        height: 60px;
-        background-color: rgba(255, 253, 112, 0.8);
-        border-radius: 50%;
-        margin: 16px;
-        margin-bottom: 0px;
-        opacity: 0;
-        -webkit-transition: all 0.5s;
-        -o-transition: all 0.5s;
-        transition: all 0.5s;
-        transition: all 0.5s;
-        transition-delay: 1s;
-        -webkit-transition-delay: 1s;
-        -o-transition-delay: 1s;
-        transition-delay: 1s;
-
-    }
-
-    .sub_mins>h3 {
-        font-size: 24px;
-        margin-top: 7px;
-        margin-bottom: -15px;
-    }
-
-    .sub_mins>span {
-        font-size: 9px;
-        font-weight: 700;
-    }
-
-    .cont_servings {
-        position: relative;
-        float: left;
-        width: 60px;
-        height: 60px;
-        background-color: rgba(255, 253, 112, 0.8);
-        border-radius: 50%;
-        margin: 16px;
-        opacity: 0;
-        -webkit-transition: all 0.5s;
-        -o-transition: all 0.5s;
-        transition: all 0.5s;
-        transition-delay: 0.7s;
-        -webkit-transition-delay: 0.7s;
-        -o-transition-delay: 0.7s;
-        transition-delay: 0.7s;
-    }
-
-    .cont_servings>h3 {
-        font-size: 24px;
-        margin-top: 5px;
-        margin-bottom: -15px;
-    }
-
-    .cont_servings>span {
-        font-size: 9px;
-        font-weight: 700;
-    }
-
-    .cont_icon_right {
-        position: relative;
-        float: right;
-        margin-top: 16px;
-        font-size: 20px;
-    }
-
-    .cont_icon_right>a {
-        margin: 16px;
-        margin-top: 16px;
-        color: #fff;
-        transition: color 0.3s;
-        /* Tambahkan transisi untuk efek smooth */
-    }
-
-    .cont_icon_right>a:hover {
-        color: red;
-        /* Warna berubah menjadi merah saat hover */
-    }
-
-    .cont_detalles {
-        position: absolute;
-        bottom: -185px;
-        height: 200px;
-        border-radius: 5px;
-        /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+100,000000+101&0+0,0.65+68 */
-        background: -moz-linear-gradient(top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.65) 68%, rgba(0, 0, 0, 0.65) 100%, rgba(0, 0, 0, 0.65) 101%);
-        /* FF3.6-15 */
-        background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.65) 68%, rgba(0, 0, 0, 0.65) 100%, rgba(0, 0, 0, 0.65) 101%);
-        /* Chrome10-25,Safari5.1-6 */
-        background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.65) 68%, rgba(0, 0, 0, 0.65) 100%, rgba(0, 0, 0, 0.65) 101%);
-        /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-
-
-        width: 100%;
-        -webkit-transition: all 0.5s;
-        -o-transition: all 0.5s;
-        transition: all 0.5s;
-        transition-delay: 1.2s;
-        -webkit-transition-delay: 0.7s;
-        -o-transition-delay: 0.7s;
-        transition-delay: 0.7s;
-    }
-
-
-    .cont_detalles>h3 {
-        margin-top: 50px;
-        color: #fff;
-        font-size: 24px;
-    }
-
-    .cont_detalles>p {
-        color: #fff;
-        width: 80%;
-        text-align: left;
-        font-size: 14px;
-    }
-
-    /* ---------------- Css Tabs -------- */
-
-    .cont_tabs {
-        position: relative;
-        float: left;
-        width: 410px;
-        height: 60px;
-        border-bottom: 3px solid #EDEDEC;
-    }
-
-    .cont_tabs>ul {
-        width: 300px;
-        background-color: #eee;
-    }
-
-    .cont_tabs>ul>li {
-        position: relative;
-        float: left;
-        width: 50%;
-        list-style: none;
-    }
-
-    .cont_tabs>ul>li>a {
-        border-top: 7px solid #ED346C;
-        position: relative;
-        display: block;
-        float: left;
-        padding-top: 15px;
-        color: #241C3E;
-        text-decoration: none;
-        margin-left: 15px;
-        font-size: 14px;
-    }
-
-    .cont_tabs>ul>li:first-child>a {
-        border-top: 7px solid rgba(237, 52, 108, 0);
-        margin-top: 0px;
-        color: #9A96A4;
-        -webkit-transition: all 0.5s;
-        -o-transition: all 0.5s;
-        transition: all 0.5s;
-        transition: all 0.2s;
-    }
-
-    .cont_tabs>ul>li:first-child>a:hover {
-        border-top: 7px solid #ED346C;
-        padding-top: 15px;
-        color: #241C3E;
-        margin-top: 0px;
-    }
-
-    .cont_btn_open_dets {
-        position: absolute;
-        right: -15px;
-        top: 50%;
-    }
-
-    .cont_btn_open_dets>a {
-        display: block;
-        padding-top: -5px;
-        width: 30px;
-        height: 30px;
-        background-color: #ED2460;
-        border-radius: 50%;
-        color: #fff;
-        box-shadow: 0px 0px 20px -2px rgba(237, 36, 96, 1);
-        -webkit-transition: all 0.5s;
-        -o-transition: all 0.5s;
-        transition: all 0.5s;
-        transition: all 0.5s;
-        transform: rotate(180deg);
-
-    }
-
-
-    .cont_btn_open_dets>a>i {
-        margin-top: 4px;
-    }
-
-    .cont_title_preparation {
-        position: relative;
-        float: left;
-        margin: 10px 0px;
-        width: 410px;
-    }
-
-    .cont_title_preparation>p {
-        font-weight: 700;
-        font-size: 14px;
-        margin-left: 40px;
-        text-align: left;
-        color: #36354E;
-    }
-
-    .cont_info_preparation {
-        position: relative;
-        float: left;
-    }
-
-    .cont_info_preparation>p {
-        margin: 5px 0px;
-        margin-left: 50px;
-        border-left: 2px solid #E3E3E3;
-        font-size: 12px;
-        padding: 20px 0px;
-        padding-left: 20px;
-        text-align: left;
-        padding-right: 15px;
-        color: #565656;
-    }
-
-    .cont_btn_mas_dets {
-        position: absolute;
-        bottom: 0px;
-        left: 50%;
-    }
-
-    .cont_btn_mas_dets>a {
-        color: #36354E;
-    }
-
-    .cont_over_hidden {
-        position: relative;
-        float: left;
-        width: 100%;
-        height: 400px;
-        overflow: hidden;
-    }
-
-    .cont_text_det_preparation {
-        position: relative;
-        width: 410px;
-    }
-
-    .cont_modal_active>.cont_text_ingredients>.cont_btn_open_dets>a {
-        transform: rotate(0deg);
-    }
-
-    .cont_modal_active>.cont_text_ingredients {
-        width: 410px;
-        left: 285px;
-        z-index: 1;
-        box-shadow: 15px 20px 70px -5px rgba(0, 0, 0, 0.2);
-    }
-
-
-    .cont_modal_active>.cont_photo {
-        box-shadow: 25px 10px 70px -5px rgba(0, 0, 0, 0.3);
-    }
-
-    .cont_modal_active>.cont_photo>.cont_mins>.sub_mins {
-        opacity: 1;
-    }
-
-    .cont_modal_active>.cont_photo>.cont_servings {
-        opacity: 1;
-    }
-
-    .cont_modal_active>.cont_photo>.cont_detalles {
-        bottom: 0px;
-    }
-
-    .decorated-text {
-        position: relative;
-        display: flex;
-        align-items: center;
-    }
-
-    .decorated-text::after {
-        content: '';
-        display: block;
-        width: 635px;
-        /* Panjang garis */
-        height: 0.1px;
-        /* Ketebalan garis */
-        background-color: #dcdcdc;
-        /* Warna garis */
-        margin-left: 6px;
-        /* Jarak antara teks dan garis */
-    }
-
-    .favorite-icon {
-        position: absolute;
-        top: 10px;
-        right: 13px;
-        text-decoration: none;
-        color: rgba(0, 0, 0, 0.5);
-        /* Warna ikon awal */
-        font-size: 1.2em;
-        transition: color 0.3s;
-    }
-
-    .favorite-icon:hover {
-        color: red !important;
-    }
-
-    .favorite-icon.active {
-        color: red !important;
-    }
-
-    .separator {
-        border-top: 1px solid #eee;
-        margin: 0;
-        height: 1px;
-        width: 100%;
-    }
+  :root {
+    --primary: #FFBD59;
+    --primary-dark: #e5a805;
+    --text-dark: #1a1a2e;
+    --text-light: #999;
+    --border: #f0f0f0;
+    --shadow-sm: 0 2px 12px rgba(0,0,0,0.07);
+    --shadow-md: 0 6px 24px rgba(0,0,0,0.12);
+    --radius: 12px;
+    --radius-sm: 8px;
+    font-family: 'Nunito', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .page-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+  }
+
+  .breadcrumb-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-bottom: 24px;
+  }
+  .breadcrumb-nav a { color: var(--primary-dark); text-decoration: none; font-weight: 600; }
+  .breadcrumb-nav a:hover { text-decoration: underline; }
+  .breadcrumb-nav span { color: #ccc; }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+    padding-bottom: 18px;
+    border-bottom: 2px solid var(--border);
+  }
+  .page-header .icon-wrap {
+    width: 48px; height: 48px;
+    background: var(--primary);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; color: #fff; flex-shrink: 0;
+  }
+  .page-header h1 { font-size: 1.5rem; font-weight: 700; color: var(--text-dark); margin: 0; }
+  .page-header .recipe-count { font-size: 0.85rem; color: var(--text-light); margin-top: 2px; }
+
+  .empty-state {
+    text-align: center; padding: 60px 20px; color: var(--text-light);
+  }
+  .empty-state i { font-size: 3rem; margin-bottom: 16px; opacity: 0.4; }
+  .empty-state a {
+    display: inline-block; margin-top: 16px; background: var(--primary); color: #fff;
+    padding: 10px 24px; border-radius: var(--radius-sm); text-decoration: none;
+    font-weight: 700; font-size: 0.9rem; transition: background 0.25s;
+  }
+  .empty-state a:hover { background: var(--primary-dark); }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+  .recipe-card {
+    background: #fff; border-radius: var(--radius); overflow: hidden;
+    border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+    display: flex; flex-direction: column;
+    transition: transform 0.25s, box-shadow 0.25s;
+  }
+  .recipe-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+
+  .card-img-wrap {
+    position: relative; height: 165px; overflow: hidden; background: #f5f5f5;
+  }
+  .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+  .recipe-card:hover .card-img-wrap img { transform: scale(1.06); }
+
+  .fav-btn {
+    position: absolute; top: 9px; right: 9px;
+    background: rgba(255,255,255,0.88); border: none; border-radius: 50%;
+    width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 0.85rem; transition: transform 0.2s, background 0.2s;
+  }
+  .fav-btn:hover { transform: scale(1.15); background: #fff; }
+
+  .card-body { padding: 13px; flex: 1; display: flex; flex-direction: column; gap: 7px; }
+  .card-title {
+    font-size: 0.92rem; font-weight: 700; color: var(--text-dark); line-height: 1.35;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .card-meta { display: flex; gap: 10px; font-size: 0.76rem; color: var(--text-light); flex-wrap: wrap; }
+  .card-meta span { display: flex; align-items: center; gap: 4px; }
+  .stars { color: var(--primary); font-size: 0.72rem; }
+
+  .card-cta {
+    display: block; background: var(--primary); color: #fff; text-align: center;
+    padding: 10px; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.07em;
+    text-transform: uppercase; text-decoration: none; transition: background 0.25s; margin-top: auto;
+  }
+  .card-cta:hover { background: var(--primary-dark); }
+
+  .other-categories { margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--border); }
+
+  .section-title {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 1rem; font-weight: 700; color: var(--text-dark); margin-bottom: 16px;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .cat-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+
+  .cat-chip {
+    display: flex; align-items: center; gap: 7px;
+    background: #fff; border: 1px solid var(--border); border-radius: 40px;
+    padding: 8px 16px; font-size: 0.82rem; font-weight: 700;
+    color: var(--text-dark); text-decoration: none; transition: all 0.2s;
+  }
+  .cat-chip:hover, .cat-chip.active {
+    background: var(--primary); border-color: var(--primary); color: #fff;
+  }
+  .cat-chip i { font-size: 0.9rem; }
+
+  @media (max-width: 1024px) { .cards-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 768px)  { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px)  { .cards-grid { grid-template-columns: 1fr; } .card-img-wrap { height: 200px; } }
 </style>
 
-<body>
-    <section class="py-1">
-        <div class="container px-4 px-lg-2 mt-1">
-            <div style="justify-content: center;">
-                <h1>Kategori: {{ ucfirst($category) }}</h1>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <h1 class="decorated-text">Resep Kategori {{ ucfirst($category) }}</h1>
-                    <div class="card-container row">
-                        @foreach ($recipes as $recipe)
-                            <div class="col-md-3">
-                                <div class="card h-100">
-                                    <div class="header">
-                                        <div class="img-wrapper">
-                                            @if($recipe->image)
-                                                <img src="{{ Storage::url($recipe->image) }}" class="card-img-top"
-                                                    alt="{{ $recipe->name }}">
-                                                <button class="favorite-icon" data-recipe-id="{{ $recipe->id }}"
-                                                    style="background: transparent; border: none; outline: none;">
-                                                    <i class="fa fa-heart"
-                                                        style="color: {{ $recipe->isFavoritedBy(Auth::user()) ? 'red' : 'grey' }}"></i>
-                                                </button>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <div class="separator"></div>
-                                    <div class="text">
-                                        <h1 class="food">{{ $recipe->name }}</h1>
-                                        <i class="fa-solid fa-clock normal-text small-text">{{ $recipe->cooking_time }}
-                                            Waktu</i>
-                                        <i class="fa fa-users normal-text small-text"> Orang {{ $recipe->servings }}</i>
-                                        <div class="stars">
-                                            <a href="#"><i class="fa fa-star"></i></a>
-                                            <a href="#"><i class="fa fa-star"></i></a>
-                                            <a href="#"><i class="fa fa-star"></i></a>
-                                            <a href="#"><i class="fa fa-star"></i></a>
-                                            <a href="#"><i class="fa fa-star-o"></i></a>
-                                        </div>
-                                    </div>
-                                    <a href="{{ route('recipes.show', $recipe->id) }}" class="btn">Let's Cook!</a>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-</body>
+{{-- Peta ikon per nama kategori --}}
+@php
+  $iconMap = [
+    'kue'=>'fa-birthday-cake','cemilan'=>'fa-utensils','bayi'=>'fa-child',
+    'bayi dan anak'=>'fa-child','pizza'=>'fa-pizza-slice','opor'=>'fa-drumstick-bite',
+    'sop'=>'fa-utensil-spoon','ikan'=>'fa-fish','sayur'=>'fa-leaf',
+    'ayam'=>'fa-drumstick-bite','mie'=>'fa-bowl-food','minuman'=>'fa-glass-water',
+    'sate'=>'fa-utensils','salad'=>'fa-leaf','eskrim'=>'fa-ice-cream',
+  ];
+  $currentIcon = $iconMap[strtolower($category)] ?? 'fa-utensils';
+@endphp
 
-</html>
+<div class="page-wrapper">
+
+  {{-- Breadcrumb --}}
+  <nav class="breadcrumb-nav">
+    <a href="{{ route('user.dashboard') }}">Beranda</a>
+    <span>&rsaquo;</span>
+    <span>Kategori</span>
+    <span>&rsaquo;</span>
+    <span>{{ ucfirst($category) }}</span>
+  </nav>
+
+  {{-- Page Header --}}
+  <div class="page-header">
+    <div class="icon-wrap">
+      <i class="fas {{ $currentIcon }}"></i>
+    </div>
+    <div>
+      <h1>Resep {{ ucfirst($category) }}</h1>
+      <p class="recipe-count">{{ $recipes->count() }} resep ditemukan</p>
+    </div>
+  </div>
+
+  {{-- Recipe Cards --}}
+  @if ($recipes->isEmpty())
+    <div class="empty-state">
+      <div><i class="fas fa-search"></i></div>
+      <p>Belum ada resep untuk kategori <strong>{{ ucfirst($category) }}</strong>.</p>
+      <a href="{{ route('recipes.create') }}">+ Tambah Resep Baru</a>
+    </div>
+  @else
+    <div class="cards-grid">
+      @foreach ($recipes as $recipe)
+        <div class="recipe-card">
+          <div class="card-img-wrap">
+            @if ($recipe->image)
+              <img src="{{ Storage::url($recipe->image) }}" alt="{{ $recipe->name }}">
+            @else
+              <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#ccc;">
+                <i class="fas fa-image" style="font-size:2rem;"></i>
+              </div>
+            @endif
+            <button class="fav-btn" data-recipe-id="{{ $recipe->id }}">
+              <i class="fa fa-heart"
+                 style="color: {{ $recipe->isFavoritedBy(Auth::user()) ? '#e74c3c' : '#ccc' }}"></i>
+            </button>
+          </div>
+          <div class="card-body">
+            <p class="card-title">{{ $recipe->name }}</p>
+            <div class="card-meta">
+              <span><i class="fa fa-clock"></i> {{ $recipe->cooking_time }} mnt</span>
+              <span><i class="fa fa-users"></i> {{ $recipe->servings }} orang</span>
+            </div>
+            <div class="stars">
+              <i class="fa fa-star"></i><i class="fa fa-star"></i>
+              <i class="fa fa-star"></i><i class="fa fa-star"></i>
+              <i class="fa fa-star-o"></i>
+            </div>
+          </div>
+          <a href="{{ route('recipes.show', $recipe->id) }}" class="card-cta">Let's Cook!</a>
+        </div>
+      @endforeach
+    </div>
+  @endif
+
+  {{-- Kategori Lainnya — dinamis dari DB --}}
+  <div class="other-categories">
+    <h2 class="section-title">Kategori Lainnya</h2>
+    <div class="cat-chips">
+      @foreach ($allCategories as $cat)
+        @php $icon = $iconMap[strtolower($cat)] ?? 'fa-utensils'; @endphp
+        <a href="{{ route('recipes.category', $cat) }}"
+           class="cat-chip {{ strtolower($cat) === strtolower($category) ? 'active' : '' }}">
+          <i class="fas {{ $icon }}"></i>
+          {{ ucfirst($cat) }}
+        </a>
+      @endforeach
+    </div>
+  </div>
+
+</div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.favorite-icon').forEach(button => {
-            button.addEventListener('click', function () {
-                const recipeId = this.dataset.recipeId;
-                const icon = this.querySelector('i');
-                const isFavorited = icon.style.color === 'red';
+  document.querySelectorAll('.fav-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const id   = this.dataset.recipeId;
+      const icon = this.querySelector('i');
+      const isRed = icon.style.color === 'rgb(231, 76, 60)' || icon.style.color === '#e74c3c';
 
-                fetch(`/profile/favorites/${recipeId}`, {
-                    method: isFavorited ? 'DELETE' : 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.message === 'Recipe added to favorites') {
-                            icon.style.color = 'red';
-                            alert('Resep berhasil ditambahkan ke favorit!');
-                        } else if (data.message === 'Recipe removed from favorites') {
-                            icon.style.color = 'grey';
-                            alert('Resep berhasil dihapus dari favorit!');
-                        } else {
-                            alert('Terjadi kesalahan.');
-                        }
-                    })
-                    .catch(error => console.error('Error:', error));
-            });
-        });
+      fetch(`/profile/favorites/${id}`, {
+        method: isRed ? 'DELETE' : 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.message === 'Recipe added to favorites') icon.style.color = '#e74c3c';
+        else if (data.message === 'Recipe removed from favorites') icon.style.color = '#ccc';
+      })
+      .catch(err => console.error(err));
     });
+  });
 </script>
+
 @endsection

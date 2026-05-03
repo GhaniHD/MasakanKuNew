@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User; // Import model User untuk mengambil data pengguna
 use App\Models\Recipe;
 
@@ -19,11 +18,21 @@ class UserDashboardController extends Controller
         $users = User::all();
 
         // Mengambil semua resep dari model Recipe
-        $recipes = Recipe::all();
+        $recipes = Recipe::with('reviews')->latest()->get();
 
-        $popularRecipes = Recipe::orderBy('views', 'desc')->limit(3)->get();
+        $popularRecipes = Recipe::withCount('reviews')
+            ->orderBy('reviews_count', 'desc')
+            ->take(5)
+            ->get();
+
+        $categories = Recipe::whereNotNull('category')
+            ->where('category', '!=', '')
+            ->distinct()
+            ->orderBy('category')
+            ->pluck('category')
+            ->take(8);
 
         // Mengirim data pengguna dan resep ke tampilan Blade 'user.dashboard'
-        return view('user.dashboard', compact('users', 'recipes', 'popularRecipes'));
+        return view('user.dashboard', compact('users', 'recipes', 'popularRecipes', 'categories'));
     }
 }

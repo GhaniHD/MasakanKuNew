@@ -36,18 +36,29 @@
                 <div class="col-md-4">
                     <div class="card mb-4 recipe-card">
                         @if($recipe->image)
-                            {{-- Gunakan helper recipe_image() agar support Cloudinary & local --}}
-                            <img src="{{ recipe_image($recipe->image, asset('images/default-recipe.png')) }}"
+                            <img src="{{ str_starts_with($recipe->image, 'http')
+                                            ? $recipe->image
+                                            : asset('storage/' . $recipe->image) }}"
+                                 class="card-img-top recipe-image"
+                                 alt="{{ $recipe->name }}">
+                        @else
+                            <img src="{{ asset('images/default-recipe.png') }}"
                                  class="card-img-top recipe-image"
                                  alt="{{ $recipe->name }}">
                         @endif
                         <div class="card-body">
                             <h5 class="card-title">{{ $recipe->name }}</h5>
                             <p class="card-text">{{ Str::limit($recipe->description, 80) }}</p>
-                            <a href="{{ route('recipes.show', $recipe->id) }}" class="btn btn-primary">Lihat Resep</a>
-                            <a href="{{ route('recipes.edit', $recipe->id) }}" class="btn btn-warning">Edit</a>
-                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal"
-                                onclick="setDeleteAction('{{ route('recipes.destroy', $recipe->id) }}')">Hapus</button>
+                            <div class="d-flex gap-1 flex-wrap mt-2">
+                                <a href="{{ route('recipes.show', $recipe->id) }}" class="btn btn-primary btn-sm">Lihat Resep</a>
+                                <a href="{{ route('recipes.edit', $recipe->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                                <button type="button" class="btn btn-danger btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal"
+                                    onclick="setDeleteAction('{{ route('recipes.destroy', $recipe->id) }}')">
+                                    Hapus
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -56,18 +67,19 @@
     @endif
 </div>
 
-<!-- Modal Hapus -->
+<!-- Modal Hapus (Bootstrap 5) -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="deleteModalLabel">Konfirmasi Penghapusan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Apakah Anda yakin ingin menghapus resep ini?
+                Apakah Anda yakin ingin menghapus resep ini? Tindakan ini tidak dapat dibatalkan.
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                 <form id="deleteForm" method="POST" class="d-inline">
                     @csrf
                     @method('DELETE')
@@ -116,4 +128,3 @@
     }
 </script>
 @endsection
-

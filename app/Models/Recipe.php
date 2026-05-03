@@ -19,7 +19,7 @@ class Recipe extends Model
         'user_id',
         'description',
         'ingredients',
-        'instructions',
+        'steps',
         'category',
         'servings',
         'cooking_time',
@@ -27,7 +27,7 @@ class Recipe extends Model
 
     protected $casts = [
         'ingredients' => 'array',
-        'instructions' => 'array',
+        'steps' => 'array',
     ];
 
     /**

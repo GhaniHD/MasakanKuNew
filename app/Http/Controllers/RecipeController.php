@@ -16,7 +16,13 @@ class RecipeController extends Controller
 {
     public function create(): View
     {
-        return view('recipes.create');
+        $existingCategories = Recipe::whereNotNull('category')
+            ->where('category', '!=', '')
+            ->distinct()
+            ->orderBy('category')
+            ->pluck('category');
+
+        return view('recipes.create', compact('existingCategories'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -42,15 +48,14 @@ class RecipeController extends Controller
                 : $request->file('cover_image')->store('images', 'public');
         }
 
-        /** @var Recipe $recipe */
         $recipe = Recipe::create([
             'image' => $coverImagePath,
             'name' => $validatedData['name'],
             'user_id' => Auth::id(),
             'description' => $validatedData['description'],
-            'ingredients' => json_encode($validatedData['ingredients']),
-            'instructions' => json_encode($validatedData['instructions']),
-            'category' => $validatedData['category'],
+            'ingredients' => $validatedData['ingredients'],
+            'steps' => $validatedData['instructions'],
+            'category' => strtolower(trim($validatedData['category'])),
             'servings' => $validatedData['servings'],
             'cooking_time' => $validatedData['cooking_time'],
         ]);
@@ -103,11 +108,13 @@ class RecipeController extends Controller
     public function search(Request $request): View
     {
         $query = $request->input('query');
-        $recipes = Recipe::where('user_id', Auth::id())
-            ->where(function ($q) use ($query) {
-                $q->where('name', 'like', "%$query%")
-                    ->orWhere('description', 'like', "%$query%");
-            })
+
+        $recipes = Recipe::where(function ($q) use ($query) {
+            $q->where('name', 'like', "%$query%")
+                ->orWhere('description', 'like', "%$query%")
+                ->orWhere('category', 'like', "%$query%");
+        })
+            ->latest()
             ->get();
 
         return view('recipes.search_results', ['recipes' => $recipes]);
@@ -138,6 +145,11 @@ class RecipeController extends Controller
 
     public function storeReview(Request $request, int $recipeId): RedirectResponse
     {
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string|max:1000',
+        ]);
+
         Review::create([
             'recipe_id' => $recipeId,
             'user_id' => Auth::id(),
@@ -145,7 +157,8 @@ class RecipeController extends Controller
             'comment' => $request->input('comment'),
         ]);
 
-        return redirect()->route('recipes.show', $recipeId);
+        return redirect()->route('recipes.show', $recipeId)
+            ->with('success', 'Ulasan berhasil ditambahkan!');
     }
 
     public function storeComment(Request $request, int $recipeId): RedirectResponse
@@ -167,14 +180,30 @@ class RecipeController extends Controller
 
     public function category(string $category): View
     {
-        $recipes = Recipe::where('category', $category)->get();
-        return view('recipes.category', ['recipes' => $recipes, 'category' => $category]);
+        $recipes = Recipe::where('category', strtolower($category))
+            ->latest()
+            ->get();
+
+        $allCategories = Recipe::whereNotNull('category')
+            ->where('category', '!=', '')
+            ->distinct()
+            ->orderBy('category')
+            ->pluck('category');
+
+        return view('recipes.category', compact('recipes', 'category', 'allCategories'));
     }
 
     public function edit(int $id): View
     {
         $recipe = Recipe::findOrFail($id);
-        return view('recipes.edit', compact('recipe'));
+
+        $existingCategories = Recipe::whereNotNull('category')
+            ->where('category', '!=', '')
+            ->distinct()
+            ->orderBy('category')
+            ->pluck('category');
+
+        return view('recipes.edit', compact('recipe', 'existingCategories'));
     }
 
     public function update(Request $request, int $id): RedirectResponse
@@ -188,8 +217,11 @@ class RecipeController extends Controller
             'servings' => 'required|integer|min:1',
             'cooking_time' => 'required|integer|min:0',
             'ingredients' => 'required|array|min:1',
+            'instructions' => 'nullable|array',
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
+
+        $validated['category'] = strtolower(trim($validated['category']));
 
         if ($request->hasFile('cover_image')) {
             $disk = config('filesystems.default');
@@ -201,6 +233,11 @@ class RecipeController extends Controller
             $validated['image'] = $disk === 'cloudinary'
                 ? $request->file('cover_image')->store('masakanku/recipes', 'cloudinary')
                 : $request->file('cover_image')->store('images', 'public');
+        }
+
+        if (isset($validated['instructions'])) {
+            $validated['steps'] = $validated['instructions'];
+            unset($validated['instructions']);
         }
 
         $recipe->update($validated);
