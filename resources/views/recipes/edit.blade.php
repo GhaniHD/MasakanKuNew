@@ -173,8 +173,8 @@
                                         @if($instrItem->image)
                                             <div class="mb-2">
                                                 <small class="text-muted">Gambar saat ini:</small><br>
-                                                <img src="{{ str_starts_with($instrItem->image, 'http') ? $instrItem->image : asset('storage/' . $instrItem->image) }}"
-                                                     style="height: 80px; border-radius: 4px; margin-top: 4px;">
+                                                <img src="{{ $instrItem->image }}"
+     style="height: 80px; border-radius: 4px; margin-top: 4px;">
                                             </div>
                                         @endif
                                         <input type="file" class="form-control-file mb-2"

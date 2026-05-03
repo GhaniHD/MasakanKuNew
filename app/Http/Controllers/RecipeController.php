@@ -84,7 +84,8 @@ class RecipeController extends Controller
                         /** @var \Illuminate\Filesystem\FilesystemAdapter $cloudDisk */
                         $cloudDisk = Storage::disk('cloudinary');
 
-                        $path = $cloudDisk->url($path); // ✅ FIX
+                        $path = $cloudDisk->url($path);
+                    
                     } else {
                         $path = $file->store("instruction_images/{$recipe->id}", 'public');
 
