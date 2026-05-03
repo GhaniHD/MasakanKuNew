@@ -16,9 +16,6 @@ Route::get('/', function () {
 Route::get('/search', [RecipeController::class, 'search'])->name('search');
 Route::get('/populer', [RecipeController::class, 'popular'])->name('recipes.popular');
 
-// Route publik resep (harus di atas agar tidak tertimpa)
-Route::get('/recipes/{id}', [RecipeController::class, 'show'])->name('recipes.show');
-
 Route::middleware('auth')->group(function () {
 
     // Profile
@@ -32,7 +29,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/favorites/{recipe}', [FavoriteController::class, 'toggleFavorite']);
     Route::delete('/profile/favorites/{recipe}', [FavoriteController::class, 'toggleFavorite']);
 
-    // Recipes — urutan penting: /create harus sebelum /{recipe}
+    // ✅ Static routes HARUS di atas dynamic /{id}
     Route::get('/recipes/create', [RecipeController::class, 'create'])->name('recipes.create');
     Route::get('/recipes/category/{category}', [RecipeController::class, 'category'])->name('recipes.category');
     Route::get('/recipes', [RecipeController::class, 'index'])->name('recipes.index');
@@ -43,6 +40,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/recipes/{recipe}/reviews', [ReviewController::class, 'store'])->name('recipes.storeReview');
     Route::post('/recipes/{recipe}/comments', [CommentController::class, 'store'])->name('recipes.storeComment');
 });
+
+// ✅ Route publik show — pakai whereNumber agar 'create' tidak tertangkap
+Route::get('/recipes/{id}', [RecipeController::class, 'show'])
+    ->name('recipes.show')
+    ->whereNumber('id');
 
 Route::prefix('admin')->middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
