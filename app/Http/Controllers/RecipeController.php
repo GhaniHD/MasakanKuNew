@@ -41,11 +41,24 @@ class RecipeController extends Controller
         ]);
 
         $coverImagePath = null;
+
         if ($request->hasFile('cover_image')) {
             $disk = config('filesystems.default');
-            $coverImagePath = $disk === 'cloudinary'
-                ? $request->file('cover_image')->store('masakanku/recipes', 'cloudinary')
-                : $request->file('cover_image')->store('images', 'public');
+
+            if ($disk === 'cloudinary') {
+                $path = $request->file('cover_image')
+                    ->store('masakanku/recipes', 'cloudinary');
+
+                /** @var \Illuminate\Filesystem\FilesystemAdapter $cloudDisk */
+                $cloudDisk = Storage::disk('cloudinary');
+
+                $coverImagePath = $cloudDisk->url($path); // ✅ FIX
+            } else {
+                $path = $request->file('cover_image')
+                    ->store('images', 'public');
+
+                $coverImagePath = Storage::url($path);
+            }
         }
 
         $recipe = Recipe::create([
@@ -65,10 +78,18 @@ class RecipeController extends Controller
             if ($request->hasFile($fileKey)) {
                 foreach ($request->file($fileKey) as $file) {
                     $disk = config('filesystems.default');
-                    $path = $disk === 'cloudinary'
-                        ? $file->store("masakanku/instruction_images/{$recipe->id}", 'cloudinary')
-                        : $file->store("instruction_images/{$recipe->id}", 'public');
+                    if ($disk === 'cloudinary') {
+                        $path = $file->store("masakanku/instruction_images/{$recipe->id}", 'cloudinary');
 
+                        /** @var \Illuminate\Filesystem\FilesystemAdapter $cloudDisk */
+                        $cloudDisk = Storage::disk('cloudinary');
+
+                        $path = $cloudDisk->url($path); // ✅ FIX
+                    } else {
+                        $path = $file->store("instruction_images/{$recipe->id}", 'public');
+
+                        $path = Storage::url($path);
+                    }
                     Instruction::create([
                         'nama' => $instructionText,
                         'recipe_id' => $recipe->id,
@@ -230,9 +251,20 @@ class RecipeController extends Controller
                 Storage::disk('public')->delete($recipe->image);
             }
 
-            $validated['image'] = $disk === 'cloudinary'
-                ? $request->file('cover_image')->store('masakanku/recipes', 'cloudinary')
-                : $request->file('cover_image')->store('images', 'public');
+            if ($disk === 'cloudinary') {
+                $path = $request->file('cover_image')
+                    ->store('masakanku/recipes', 'cloudinary');
+
+                /** @var \Illuminate\Filesystem\FilesystemAdapter $cloudDisk */
+                $cloudDisk = Storage::disk('cloudinary');
+
+                $validated['image'] = $cloudDisk->url($path); // ✅ FIX
+            } else {
+                $path = $request->file('cover_image')
+                    ->store('images', 'public');
+
+                $validated['image'] = Storage::url($path);
+            }
         }
 
         if (isset($validated['instructions'])) {

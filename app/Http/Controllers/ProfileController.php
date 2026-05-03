@@ -43,7 +43,6 @@ class ProfileController extends Controller
         $disk = config('filesystems.default');
 
         if ($request->hasFile('profile_picture')) {
-            Storage::makeDirectory('public/profile_pictures');
             // Hapus foto lama jika local storage
             if ($user->profile_picture_url && $disk !== 'cloudinary') {
                 $oldPath = ltrim(str_replace(url('/storage'), '', $user->profile_picture_url), '/');
@@ -53,7 +52,12 @@ class ProfileController extends Controller
             if ($disk === 'cloudinary') {
                 $path = $request->file('profile_picture')
                     ->store('masakanku/profile_pictures', 'cloudinary');
-                $user->profile_picture_url = $path; // Cloudinary sudah return full URL
+
+                /** @var \Illuminate\Filesystem\FilesystemAdapter $cloudDisk */
+                $cloudDisk = Storage::disk('cloudinary');
+                $url = $cloudDisk->url($path);
+
+                $user->profile_picture_url = $url; // ✅ ini baru benar
             } else {
                 $path = $request->file('profile_picture')
                     ->store('profile_pictures', 'public');
