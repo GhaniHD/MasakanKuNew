@@ -56,4 +56,15 @@ Route::prefix('user')->middleware(['auth', 'verified', 'user'])->group(function 
     Route::get('/all-recipes', [RecipeController::class, 'allRecipes'])->name('recipes.all');
 });
 
+Route::get('/debug-storage', function () {
+    return [
+        'env' => app()->environment(),
+        'storage_path' => storage_path('app/public'),
+        'files' => scandir(storage_path('app/public')),
+        'profile_pictures' => file_exists(storage_path('app/public/profile_pictures'))
+            ? scandir(storage_path('app/public/profile_pictures'))
+            : 'folder not found'
+    ];
+});
+
 require __DIR__ . '/auth.php';
