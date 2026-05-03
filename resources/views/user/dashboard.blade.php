@@ -483,7 +483,9 @@
             <div class="recipe-card">
               <div class="card-img-wrap">
                 @if ($recipe->image)
-                  <img src="{{ Storage::url($recipe->image) }}" alt="{{ $recipe->name }}">
+                  <img src="{{ str_starts_with($recipe->image, 'http')
+    ? $recipe->image
+    : Storage::url($recipe->image) }}" alt="{{ $recipe->name }}">
                 @else
                   <div class="card-img-placeholder">
                     <i class="fas fa-image"></i>
