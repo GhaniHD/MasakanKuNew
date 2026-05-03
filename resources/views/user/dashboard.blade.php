@@ -527,7 +527,8 @@
         <h2 class="section-title">Resep Populer</h2>
         @foreach ($popularRecipes as $recipe)
           <div class="popular-card" style="margin-bottom: 14px;">
-            <img src="{{ Storage::url($recipe->image) }}" alt="{{ $recipe->name }}">
+            <img src="{{ str_starts_with($recipe->image, 'http') ? $recipe->image
+            : Storage::url($recipe->image) }}" alt="{{ $recipe->name }}">
             <div class="popular-overlay">
               <p class="popular-name">{{ $recipe->name }}</p>
               <div class="popular-meta">

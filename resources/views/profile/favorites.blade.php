@@ -575,7 +575,9 @@
                                 <div class="header">
                                     <div class="img-wrapper">
                                         @if($recipe->image)
-                                            <img src="{{ Storage::url($recipe->image) }}" class="card-img-top"
+                                            <img src="{{ str_starts_with($recipe->image, 'http')
+    ? $recipe->image
+    : Storage::url($recipe->image) }}" class="card-img-top"
                                                 alt="{{ $recipe->name }}">
                                         @else
                                             <img src="{{ asset('placeholder-image.jpg') }}" class="card-img-top"

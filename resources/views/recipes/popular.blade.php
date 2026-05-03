@@ -404,7 +404,9 @@
                                                                                 <div class="header">
                                                                                     <div class="img-wrapper">
                                                                                         @if($recipe->image)
-                                                                                            <img src="{{ Storage::url($recipe->image) }}" class="card-img-top"
+                                                                                            <img src="{{ str_starts_with($recipe->image, 'http')
+    ? $recipe->image
+    : Storage::url($recipe->image) }}" class="card-img-top"
                                                                                                 alt="{{ $recipe->name }}">
                                                                                             <button class="favorite-icon" data-recipe-id="{{ $recipe->id }}"
                                                                                                 style="background: transparent; border: none; outline: none;">
