@@ -264,6 +264,7 @@ class RecipeController extends Controller
 
         $validated['category'] = strtolower(trim($validated['category']));
 
+        // Handle cover image
         if ($request->hasFile('cover_image')) {
             $disk = config('filesystems.default');
 
@@ -277,22 +278,65 @@ class RecipeController extends Controller
 
                 /** @var \Illuminate\Filesystem\FilesystemAdapter $cloudDisk */
                 $cloudDisk = Storage::disk('cloudinary');
-
-                $validated['image'] = $cloudDisk->url($path); // ✅ FIX
+                $validated['image'] = $cloudDisk->url($path);
             } else {
-                $path = $request->file('cover_image')
-                    ->store('images', 'public');
-
+                $path = $request->file('cover_image')->store('images', 'public');
                 $validated['image'] = Storage::url($path);
             }
         }
 
-        if (isset($validated['instructions'])) {
-            $validated['steps'] = $validated['instructions'];
-            unset($validated['instructions']);
-        }
+        // Hapus kolom instructions dari validated sebelum update recipe
+        $instructionsData = $validated['instructions'] ?? null;
+        unset($validated['instructions']);
 
         $recipe->update($validated);
+
+        // ✅ Handle update instruksi
+        if ($instructionsData) {
+            // Hapus instruksi lama
+            $recipe->instructions()->delete();
+
+            foreach ($instructionsData as $key => $instructionText) {
+                $fileKey = 'instruction_images_' . ($key + 1);
+                $imagePath = null;
+
+                if ($request->hasFile($fileKey)) {
+                    $files = $request->file($fileKey);
+                    if (!is_array($files))
+                        $files = [$files];
+
+                    foreach ($files as $file) {
+                        $disk = config('filesystems.default');
+
+                        if ($disk === 'cloudinary') {
+                            $path = $file->store("masakanku/instruction_images/{$recipe->id}", 'cloudinary');
+
+                            /** @var \Illuminate\Filesystem\FilesystemAdapter $cloudDisk */
+                            $cloudDisk = Storage::disk('cloudinary');
+                            $imagePath = $cloudDisk->url($path);
+                        } else {
+                            $path = $file->store("instruction_images/{$recipe->id}", 'public');
+                            $imagePath = Storage::url($path);
+                        }
+
+                        Instruction::create([
+                            'nama' => $instructionText,
+                            'recipe_id' => $recipe->id,
+                            'image' => $imagePath,
+                        ]);
+                    }
+                    continue; // sudah dibuat di dalam loop file
+                }
+
+                // ✅ Instruksi tanpa gambar baru → cek apakah ada gambar lama
+                // Simpan instruksi dengan image null (gambar lama sudah dihapus)
+                Instruction::create([
+                    'nama' => $instructionText,
+                    'recipe_id' => $recipe->id,
+                    'image' => null,
+                ]);
+            }
+        }
 
         return redirect()->route('recipes.index')->with('success', 'Resep berhasil diperbarui!');
     }
