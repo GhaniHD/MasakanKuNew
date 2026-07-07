@@ -1,66 +1,198 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# MasakanKu
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi berbagi resep masakan berbasis web — user bisa membuat, mencari, dan
+menyimpan resep favorit, memberi rating/ulasan, dan berkomentar. Dibangun
+dengan **Laravel 11** (server-rendered, Blade + Alpine.js + Tailwind CSS),
+dengan upload gambar ke **Cloudinary**.
 
-## About Laravel
+## Fitur
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Autentikasi & role**: register/login (Laravel Breeze), dua role —
+  `admin` dan `user` (kolom `role` di tabel `users`, dijaga oleh
+  `AdminMiddleware` & `UserMiddleware`).
+- **Resep**
+  - CRUD resep (judul, kategori, porsi, waktu masak, langkah/`steps` beserta
+    gambar per langkah).
+  - Pencarian resep (`/search`) dan filter per kategori
+    (`/recipes/category/{category}`).
+  - Halaman resep populer (`/populer`), berdasar kolom popularitas/rating
+    rata-rata yang dihitung dari review.
+  - Detail resep publik (`/recipes/{id}`) — bisa diakses tanpa login.
+- **Review & Rating**: user login bisa memberi rating + ulasan pada resep;
+  rata-rata rating resep disimpan di kolom `average_rating`.
+- **Komentar**: user login bisa berkomentar di halaman resep.
+- **Favorite**: toggle simpan resep ke daftar favorit, ditampilkan di
+  `/profile/favorites`.
+- **Profil**: edit profil, ganti foto profil (upload ke Cloudinary), hapus
+  akun.
+- **Dashboard per role**
+  - Admin (`/admin/dashboard`, `/admin/recipes`): monitoring resep milik
+    semua user.
+  - User (`/user/dashboard`, `/recipes/all`): resep milik user sendiri.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tech Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+| Komponen | Teknologi |
+| --- | --- |
+| Framework | Laravel 11 (PHP 8.2) |
+| Frontend | Blade templates + Alpine.js + Tailwind CSS 3 (build via Vite) |
+| Auth scaffolding | Laravel Breeze |
+| Database | MySQL (production) / SQLite (default lokal) |
+| Storage gambar | Cloudinary (`cloudinary-labs/cloudinary-laravel`) |
+| Testing | PHPUnit |
+| Deployment | Render (`render.yaml`) / Nixpacks (`nixpacks.toml`) |
 
-## Learning Laravel
+## Struktur Proyek (ringkas)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```
+app/
+  Models/            Recipe, Category, Review, Rating, Comment, Favorite,
+                     Instruction, InstructionImage, User
+  Http/
+    Controllers/     RecipeController, ReviewController, CommentController,
+                     FavoriteController, ProfileController, AdminController,
+                     AdminDashboardController, UserDashboardController,
+                     PopulerController, RatingController, DashboardController
+    Middleware/       AdminMiddleware, UserMiddleware
+database/
+  migrations/        skema tabel (recipes, reviews, comments, ratings,
+                     steps/instructions, favorites, role di tabel users, dst)
+  seeders/, factories/
+resources/
+  views/             Blade templates
+  js/, css/          aset frontend (dikompilasi Vite)
+routes/
+  web.php            route halaman publik & privat (grup middleware auth/admin/user)
+  auth.php           route bawaan Laravel Breeze
+```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Menjalankan Proyek
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Prasyarat
+- PHP 8.2+, Composer
+- Node.js 20+ (untuk build asset Vite)
+- Database: **MySQL**
 
-## Laravel Sponsors
+### Setup
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+composer install
+npm install
 
-### Premium Partners
+cp .env.example .env
+php artisan key:generate
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+Buka `.env`, set koneksi ke MySQL:
 
-## Contributing
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=masakanku
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Buat database `masakanku` di MySQL (lewat phpMyAdmin, MySQL Workbench, atau
+`mysql -u root -p -e "CREATE DATABASE masakanku"`), lalu jalankan migrasi:
 
-## Code of Conduct
+```bash
+php artisan migrate --seed
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Jalankan server dev (Laravel + Vite, dua terminal):
 
-## Security Vulnerabilities
+```bash
+php artisan serve
+npm run dev
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Buka [http://localhost:8000](http://localhost:8000).
 
-## License
+## Environment Variable Penting
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+| Variabel | Keterangan |
+| --- | --- |
+| `APP_KEY` | Di-generate otomatis lewat `php artisan key:generate` |
+| `DB_CONNECTION` | `mysql` |
+| `DB_HOST` / `DB_PORT` / `DB_DATABASE` / `DB_USERNAME` / `DB_PASSWORD` | Kredensial koneksi MySQL |
+| `FILESYSTEM_DISK` | Set ke `cloudinary` untuk upload gambar resep/profil ke Cloudinary (lihat `.env.production.example`) |
+| `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` | Kredensial Cloudinary — wajib diisi kalau `FILESYSTEM_DISK=cloudinary` |
+
+## Daftar Route
+
+Aplikasi ini **tidak punya REST API terpisah** — semua route mengembalikan
+halaman Blade (server-rendered), bukan JSON. Daftar di bawah adalah seluruh
+route dari `routes/web.php`.
+
+### Publik (tanpa login)
+| Method | Route | Controller@Method |
+| --- | --- | --- |
+| GET | `/` | `welcome` view |
+| GET | `/search` | `RecipeController@search` |
+| GET | `/populer` | `RecipeController@popular` |
+| GET | `/recipes/{id}` | `RecipeController@show` |
+
+### Auth (login diperlukan)
+| Method | Route | Controller@Method |
+| --- | --- | --- |
+| GET | `/profile` | `ProfileController@edit` |
+| PATCH | `/profile` | `ProfileController@update` |
+| DELETE | `/profile` | `ProfileController@destroy` |
+| POST | `/profile/update/picture` | `ProfileController@updatePicture` |
+| GET | `/profile/favorites` | `ProfileController@favorites` |
+| POST/DELETE | `/profile/favorites/{recipe}` | `FavoriteController@toggleFavorite` |
+| GET | `/recipes/create` | `RecipeController@create` |
+| GET | `/recipes/category/{category}` | `RecipeController@category` |
+| GET | `/recipes` | `RecipeController@index` |
+| POST | `/recipes` | `RecipeController@store` |
+| GET | `/recipes/{recipe}/edit` | `RecipeController@edit` |
+| PUT | `/recipes/{recipe}` | `RecipeController@update` |
+| DELETE | `/recipes/{recipe}` | `RecipeController@destroy` |
+| POST | `/recipes/{recipe}/reviews` | `ReviewController@store` |
+| POST | `/recipes/{recipe}/comments` | `CommentController@store` |
+
+### Admin (`auth` + `verified` + `admin`)
+| Method | Route | Controller@Method |
+| --- | --- | --- |
+| GET | `/admin/dashboard` | `AdminController@index` |
+| GET | `/admin/recipes` | `AdminController@userRecipes` |
+
+### User (`auth` + `verified` + `user`)
+| Method | Route | Controller@Method |
+| --- | --- | --- |
+| GET | `/user/dashboard` | `UserDashboardController@index` |
+| GET | `/user/all-recipes` | `RecipeController@allRecipes` |
+
+Route autentikasi (login, register, verifikasi email, reset password, dll)
+mengikuti bawaan **Laravel Breeze** di `routes/auth.php`.
+
+## Deployment
+
+Repo ini sudah menyertakan dua opsi konfigurasi deploy siap pakai:
+
+- **`render.yaml`** — deploy ke [Render](https://render.com) (region
+  Singapore), build otomatis menjalankan `composer install`, `npm run
+  build`, lalu cache config/route/view Laravel.
+- **`nixpacks.toml`** — build via [Nixpacks](https://nixpacks.com) (dipakai
+  platform seperti Railway), termasuk step `php artisan migrate --force`
+  dan `storage:link` otomatis saat build.
+
+Untuk kedua opsi, pastikan environment variable database & Cloudinary di
+platform hosting sudah diisi sesuai tabel di atas.
+
+## Testing
+
+```bash
+php artisan test
+```
+
+## Catatan
+
+- Middleware `whereNumber('id')` di route `recipes.show` sengaja dipasang
+  supaya path statis seperti `/recipes/create` tidak tertangkap sebagai
+  parameter `{id}` dinamis — perhatikan urutan route kalau menambah route
+  statis baru di bawah prefix `/recipes`.
+- Ada file `git_test` di root repo yang tampaknya sisa eksperimen git — aman
+  dihapus kalau tidak dipakai.
