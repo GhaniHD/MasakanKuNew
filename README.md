@@ -187,12 +187,3 @@ platform hosting sudah diisi sesuai tabel di atas.
 ```bash
 php artisan test
 ```
-
-## Catatan
-
-- Middleware `whereNumber('id')` di route `recipes.show` sengaja dipasang
-  supaya path statis seperti `/recipes/create` tidak tertangkap sebagai
-  parameter `{id}` dinamis — perhatikan urutan route kalau menambah route
-  statis baru di bawah prefix `/recipes`.
-- Ada file `git_test` di root repo yang tampaknya sisa eksperimen git — aman
-  dihapus kalau tidak dipakai.
